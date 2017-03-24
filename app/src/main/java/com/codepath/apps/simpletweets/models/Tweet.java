@@ -1,6 +1,6 @@
 package com.codepath.apps.simpletweets.models;
 
-import android.text.TextUtils;
+import com.codepath.apps.simpletweets.utils.SimpleDateUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -20,6 +20,9 @@ public class Tweet {
     private long uid; //unique id for tweet
     private User user;
     private String createdAt;
+
+    private static long oldestId = Long.MAX_VALUE;
+    private static long newestId = Long.MIN_VALUE;
 
     //deserialize json and build Tweet object
     public static Tweet fromJSON(JSONObject jsonObject) {
@@ -47,9 +50,18 @@ public class Tweet {
             try {
                 JSONObject tweetJson = jsonArray.getJSONObject(i);
                 Tweet tweet = Tweet.fromJSON(tweetJson);
-                if (!TextUtils.isEmpty(tweet.getBody())) {
-                    tweets.add(tweet);
+                //if the id is the same as what we have already, it's a dupe
+                if (tweet.uid == newestId || tweet.uid == oldestId) {
+                    continue;
                 }
+                //keep oldest and newest ids around for pagination
+                if (tweet.uid > newestId) {
+                    newestId = tweet.uid;
+                }
+                if (tweet.uid < oldestId) {
+                    oldestId = tweet.uid;
+                }
+                tweets.add(tweet);
             } catch (JSONException e) {
                 e.printStackTrace();
             }
@@ -72,5 +84,18 @@ public class Tweet {
 
     public String getCreatedAt() {
         return createdAt;
+    }
+
+    public static long getOldestId() {
+        return oldestId;
+    }
+
+    public static long getNewestId() {
+        return newestId;
+    }
+
+    public String getRelativeTimeAgo() {
+        String relativeDate = SimpleDateUtils.getRelativeTimeAgo(this.getCreatedAt());
+        return relativeDate;
     }
 }
