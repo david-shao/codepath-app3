@@ -38,6 +38,9 @@ public class Tweet implements Parcelable {
         try {
             tweet.body = jsonObject.getString("text");
             tweet.uid = jsonObject.getLong("id");
+            if (tweet.uid > newestId) {
+                newestId = tweet.uid;
+            }
             tweet.createdAt = jsonObject.getString("created_at");
             tweet.user = User.fromJSON(jsonObject.getJSONObject("user"));
         } catch (JSONException e) {
@@ -58,13 +61,10 @@ public class Tweet implements Parcelable {
                 Tweet tweet = Tweet.fromJSON(tweetJson);
                 //if the id is the same as what we have already, it's a dupe
                 long uid = tweet.getUid();
-                if (uid == newestId || uid == oldestId) {
+                if (uid == oldestId) {
                     continue;
                 }
                 //keep oldest and newest ids around for pagination
-                if (uid > newestId) {
-                    newestId = uid;
-                }
                 if (uid < oldestId) {
                     oldestId = uid;
                 }

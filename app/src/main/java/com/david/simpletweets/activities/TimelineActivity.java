@@ -4,6 +4,7 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -40,6 +41,8 @@ public class TimelineActivity extends AppCompatActivity implements ComposeTweetF
     private TweetsArrayAdapter aTweets;
     private EndlessRecyclerViewScrollListener scrollListener;
     private RecyclerView rvTweets;
+    private SwipeRefreshLayout swipeContainer;
+
     private Handler handler;
 
     private ActivityTimelineBinding binding;
@@ -56,7 +59,8 @@ public class TimelineActivity extends AppCompatActivity implements ComposeTweetF
 
         handler = new Handler();
 
-        rvTweets = (RecyclerView) findViewById(R.id.rvTweets);
+        swipeContainer = binding.swipeContainer;
+        rvTweets = binding.rvTweets;
         tweets = new ArrayList<>();
         aTweets = new TweetsArrayAdapter(this, tweets);
         rvTweets.setAdapter(aTweets);
@@ -69,26 +73,46 @@ public class TimelineActivity extends AppCompatActivity implements ComposeTweetF
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 Log.d("DEBUG", "scrolling to page " + (page));
-                populateTimeline(Tweet.getOldestId() - 1, -1);
+                populateTimeline(Tweet.getOldestId() - 1, -1, false);
             }
         };
         rvTweets.addOnScrollListener(scrollListener);
 
+        //setup pull down to refresh
+        swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                Log.d("DEBUG", "refreshing tweets!");
+                populateTimeline(-1, Tweet.getNewestId(), true);
+            }
+        });
+        swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
+                android.R.color.holo_green_light,
+                android.R.color.holo_orange_light,
+                android.R.color.holo_red_light);
+
         client = TwitterApplication.getRestClient();    //singleton client
-        populateTimeline(-1, -1);
+        populateTimeline(-1, -1, false);
     }
 
     //send api request to get timeline json
     //fill listview by creating the tweet objects from json
-    private void populateTimeline(final long oldestId, final long newestId) {
+    private void populateTimeline(final long oldestId, final long newestId, final boolean refreshing) {
         client.getHomeTimeline(oldestId, newestId, new JsonHttpResponseHandler() {
             @Override
             public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
 //                Log.d("DEBUG", "success! " + response.toString());
-                int curSize = aTweets.getItemCount();
                 List<Tweet> newItems = Tweet.fromJSONArray(response);
-                tweets.addAll(newItems);
-                aTweets.notifyItemRangeInserted(curSize, newItems.size());
+                if (refreshing) {
+                    tweets.addAll(0, newItems);
+                    aTweets.notifyItemRangeInserted(0, newItems.size());
+                    rvTweets.scrollToPosition(0);
+                    swipeContainer.setRefreshing(false);
+                } else {
+                    int curSize = aTweets.getItemCount();
+                    tweets.addAll(newItems);
+                    aTweets.notifyItemRangeInserted(curSize, newItems.size());
+                }
             }
 
             @Override
@@ -100,7 +124,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeTweetF
                     Runnable runnable = new Runnable() {
                         @Override
                         public void run() {
-                            populateTimeline(oldestId, newestId);
+                            populateTimeline(oldestId, newestId, refreshing);
                         }
                     };
                     handler.postDelayed(runnable, 30000);
