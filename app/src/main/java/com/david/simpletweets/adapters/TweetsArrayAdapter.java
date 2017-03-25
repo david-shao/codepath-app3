@@ -1,4 +1,4 @@
-package com.codepath.apps.simpletweets.adapters;
+package com.david.simpletweets.adapters;
 
 import android.content.Context;
 import android.support.annotation.NonNull;
@@ -9,9 +9,9 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.codepath.apps.simpletweets.R;
-import com.codepath.apps.simpletweets.models.Tweet;
-import com.codepath.apps.simpletweets.models.User;
+import com.david.simpletweets.R;
+import com.david.simpletweets.databinding.ItemTweetBinding;
+import com.david.simpletweets.models.Tweet;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -22,7 +22,9 @@ import java.util.List;
 // taking Tweet objects and turning them into Views displayed in the list
 public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.ViewHolder> {
 
-    public static class ViewHolder extends RecyclerView.ViewHolder {
+    private ItemTweetBinding binding;
+
+    public class ViewHolder extends RecyclerView.ViewHolder {
         public ImageView ivProfileImage;
         public TextView tvUserName;
         public TextView tvBody;
@@ -32,11 +34,13 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         public ViewHolder(View itemView) {
             super(itemView);
 
-            ivProfileImage = (ImageView) itemView.findViewById(R.id.ivProfileImage);
-            tvName = (TextView) itemView.findViewById(R.id.tvName);
-            tvUserName = (TextView) itemView.findViewById(R.id.tvUserName);
-            tvBody = (TextView) itemView.findViewById(R.id.tvBody);
-            tvDate = (TextView) itemView.findViewById(R.id.tvDate);
+            binding = ItemTweetBinding.bind(itemView);
+
+            ivProfileImage = binding.ivProfileImage;
+            tvName = binding.tvName;
+            tvUserName = binding.tvUserName;
+            tvBody = binding.tvBody;
+            tvDate = binding.tvDate;
         }
 
     }
@@ -76,11 +80,8 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
 
     private void configureViewHolder(TweetsArrayAdapter.ViewHolder viewHolder, Tweet tweet) {
         // populate data into subviews
-        User user = tweet.getUser();
-        viewHolder.tvName.setText(user.getName());
-        viewHolder.tvUserName.setText(user.getScreenName());
-        viewHolder.tvBody.setText(tweet.getBody());
-        viewHolder.tvDate.setText(tweet.getRelativeTimeAgo());
+        binding.setTweet(tweet);
+        binding.executePendingBindings();
 
         viewHolder.ivProfileImage.setImageResource(android.R.color.transparent); //clear out old image for recycled view
         Picasso.with(getContext()).load(tweet.getUser().getProfileImageUrl())

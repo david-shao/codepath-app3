@@ -1,18 +1,26 @@
-package com.codepath.apps.simpletweets.activities;
+package com.david.simpletweets.activities;
 
+import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.support.v7.widget.Toolbar;
 import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 
-import com.codepath.apps.simpletweets.R;
-import com.codepath.apps.simpletweets.TwitterApplication;
-import com.codepath.apps.simpletweets.TwitterClient;
-import com.codepath.apps.simpletweets.adapters.TweetsArrayAdapter;
-import com.codepath.apps.simpletweets.listeners.EndlessRecyclerViewScrollListener;
-import com.codepath.apps.simpletweets.models.Tweet;
+import com.david.simpletweets.R;
+import com.david.simpletweets.TwitterApplication;
+import com.david.simpletweets.TwitterClient;
+import com.david.simpletweets.adapters.TweetsArrayAdapter;
+import com.david.simpletweets.databinding.ActivityTimelineBinding;
+import com.david.simpletweets.fragments.ComposeTweetFragment;
+import com.david.simpletweets.listeners.EndlessRecyclerViewScrollListener;
+import com.david.simpletweets.models.Tweet;
+import com.david.simpletweets.models.User;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
 import org.json.JSONArray;
@@ -23,8 +31,10 @@ import java.util.List;
 
 import cz.msebera.android.httpclient.Header;
 
-public class TimelineActivity extends AppCompatActivity {
+public class TimelineActivity extends AppCompatActivity implements ComposeTweetFragment.ComposeTweetListener {
 
+    private Toolbar toolbar;
+    private User currentUser;
     private TwitterClient client;
     private List<Tweet> tweets;
     private TweetsArrayAdapter aTweets;
@@ -32,10 +42,17 @@ public class TimelineActivity extends AppCompatActivity {
     private RecyclerView rvTweets;
     private Handler handler;
 
+    private ActivityTimelineBinding binding;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_timeline);
+        binding = DataBindingUtil.setContentView(this, R.layout.activity_timeline);
+
+        toolbar = binding.toolbar;
+        setSupportActionBar(toolbar);
+
+        currentUser = getIntent().getParcelableExtra("user");
 
         handler = new Handler();
 
@@ -90,5 +107,38 @@ public class TimelineActivity extends AppCompatActivity {
                 }
             }
         });
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_timeline, menu);
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        switch (id) {
+            case R.id.actCompose:
+                FragmentManager fm = getSupportFragmentManager();
+                ComposeTweetFragment frag = ComposeTweetFragment.newInstance(currentUser);
+                frag.show(fm, "fragment_compose");
+                break;
+        }
+
+        return true;
+    }
+
+    @Override
+    public void onTweet(Tweet tweet) {
+        tweets.add(0, tweet);
+        aTweets.notifyItemInserted(0);
+        rvTweets.scrollToPosition(0);
     }
 }

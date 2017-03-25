@@ -1,4 +1,4 @@
-package com.codepath.apps.simpletweets.utils;
+package com.david.simpletweets.utils;
 
 
 import android.text.format.DateUtils;

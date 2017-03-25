@@ -1,6 +1,9 @@
-package com.codepath.apps.simpletweets.models;
+package com.david.simpletweets.models;
 
-import com.codepath.apps.simpletweets.utils.SimpleDateUtils;
+import android.os.Parcel;
+import android.os.Parcelable;
+
+import com.david.simpletweets.utils.SimpleDateUtils;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -14,7 +17,7 @@ import java.util.List;
  */
 
 //parse json and store data, encapsulate state logic or display logic
-public class Tweet {
+public class Tweet implements Parcelable {
     //list out attributes
     private String body;
     private long uid; //unique id for tweet
@@ -23,6 +26,9 @@ public class Tweet {
 
     private static long oldestId = Long.MAX_VALUE;
     private static long newestId = Long.MIN_VALUE;
+
+    public Tweet() {
+    }
 
     //deserialize json and build Tweet object
     public static Tweet fromJSON(JSONObject jsonObject) {
@@ -51,15 +57,16 @@ public class Tweet {
                 JSONObject tweetJson = jsonArray.getJSONObject(i);
                 Tweet tweet = Tweet.fromJSON(tweetJson);
                 //if the id is the same as what we have already, it's a dupe
-                if (tweet.uid == newestId || tweet.uid == oldestId) {
+                long uid = tweet.getUid();
+                if (uid == newestId || uid == oldestId) {
                     continue;
                 }
                 //keep oldest and newest ids around for pagination
-                if (tweet.uid > newestId) {
-                    newestId = tweet.uid;
+                if (uid > newestId) {
+                    newestId = uid;
                 }
-                if (tweet.uid < oldestId) {
-                    oldestId = tweet.uid;
+                if (uid < oldestId) {
+                    oldestId = uid;
                 }
                 tweets.add(tweet);
             } catch (JSONException e) {
@@ -94,8 +101,40 @@ public class Tweet {
         return newestId;
     }
 
+    private Tweet(Parcel in) {
+        this.body = in.readString();
+        this.uid = in.readLong();
+        this.user = in.readParcelable(User.class.getClassLoader());
+        this.createdAt = in.readString();
+    }
+
     public String getRelativeTimeAgo() {
         String relativeDate = SimpleDateUtils.getRelativeTimeAgo(this.getCreatedAt());
         return relativeDate;
     }
+
+    @Override
+    public int describeContents() {
+        return 0;
+    }
+
+    @Override
+    public void writeToParcel(Parcel parcel, int i) {
+        parcel.writeString(this.body);
+        parcel.writeLong(this.uid);
+        parcel.writeParcelable(this.user, i);
+        parcel.writeString(this.createdAt);
+    }
+
+    public static final Parcelable.Creator<Tweet> CREATOR = new Parcelable.Creator<Tweet>() {
+        @Override
+        public Tweet createFromParcel(Parcel parcel) {
+            return new Tweet(parcel);
+        }
+
+        @Override
+        public Tweet[] newArray(int i) {
+            return new Tweet[i];
+        }
+    };
 }
