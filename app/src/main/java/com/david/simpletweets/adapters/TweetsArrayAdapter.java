@@ -1,10 +1,10 @@
 package com.david.simpletweets.adapters;
 
 import android.content.Context;
+import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
-import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -22,25 +22,29 @@ import java.util.List;
 // taking Tweet objects and turning them into Views displayed in the list
 public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.ViewHolder> {
 
-    private ItemTweetBinding binding;
-
     public class ViewHolder extends RecyclerView.ViewHolder {
+        private ItemTweetBinding binding;
         public ImageView ivProfileImage;
         public TextView tvUserName;
         public TextView tvBody;
         public TextView tvName;
         public TextView tvDate;
 
-        public ViewHolder(View itemView) {
-            super(itemView);
+        public ViewHolder(ItemTweetBinding itemView) {
+            super(itemView.getRoot());
 
-            binding = ItemTweetBinding.bind(itemView);
+            this.binding = itemView;
 
             ivProfileImage = binding.ivProfileImage;
             tvName = binding.tvName;
             tvUserName = binding.tvUserName;
             tvBody = binding.tvBody;
             tvDate = binding.tvDate;
+        }
+
+        public void bindTweet(Tweet tweet) {
+            binding.setTweet(tweet);
+            binding.executePendingBindings();
         }
 
     }
@@ -65,8 +69,8 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
     public TweetsArrayAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         Context context = parent.getContext();
         LayoutInflater inflater = LayoutInflater.from(context);
-        View view = inflater.inflate(R.layout.item_tweet, parent, false);
-        ViewHolder viewHolder = new ViewHolder(view);
+        ItemTweetBinding binding = DataBindingUtil.inflate(inflater, R.layout.item_tweet, parent, false);
+        ViewHolder viewHolder = new ViewHolder(binding);
         return viewHolder;
     }
 
@@ -80,8 +84,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
 
     private void configureViewHolder(TweetsArrayAdapter.ViewHolder viewHolder, Tweet tweet) {
         // populate data into subviews
-        binding.setTweet(tweet);
-        binding.executePendingBindings();
+        viewHolder.bindTweet(tweet);
 
         viewHolder.ivProfileImage.setImageResource(android.R.color.transparent); //clear out old image for recycled view
         Picasso.with(getContext()).load(tweet.getUser().getProfileImageUrl())

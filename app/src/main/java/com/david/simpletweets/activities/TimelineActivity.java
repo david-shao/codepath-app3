@@ -69,7 +69,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeTweetF
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
                 Log.d("DEBUG", "scrolling to page " + (page));
-                populateTimeline(Tweet.getOldestId(), -1);
+                populateTimeline(Tweet.getOldestId() - 1, -1);
             }
         };
         rvTweets.addOnScrollListener(scrollListener);
@@ -128,6 +128,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeTweetF
             case R.id.actCompose:
                 FragmentManager fm = getSupportFragmentManager();
                 ComposeTweetFragment frag = ComposeTweetFragment.newInstance(currentUser);
+//                frag.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_FullScreen);
                 frag.show(fm, "fragment_compose");
                 break;
         }
