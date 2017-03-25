@@ -117,9 +117,9 @@ public class TimelineActivity extends AppCompatActivity implements ComposeTweetF
 
             @Override
             public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Log.d("DEBUG", "failure " + errorResponse.toString());
+                Log.d("DEBUG", "failure code: " + statusCode + " " + errorResponse.toString());
                 //handle rate limit and try again later
-                if (statusCode == 88) {
+                if (statusCode == 429) {
                     Log.d("DEBUG", "rate limit reached, will try again in 30 seconds.");
                     Runnable runnable = new Runnable() {
                         @Override
