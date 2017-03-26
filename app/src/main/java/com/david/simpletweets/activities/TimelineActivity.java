@@ -10,6 +10,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -62,10 +63,16 @@ public class TimelineActivity extends AppCompatActivity implements ComposeTweetF
         toolbar = binding.toolbar;
         setSupportActionBar(toolbar);
 
+        client = TwitterApplication.getRestClient();    //singleton client
         currentUser = getIntent().getParcelableExtra("user");
-
         handler = new Handler();
 
+        processIntent();
+        setupViews();
+        populateTimeline(-1, -1, false);
+    }
+
+    private void setupViews() {
         swipeContainer = binding.swipeContainer;
         rvTweets = binding.rvTweets;
         tweets = new ArrayList<>();
@@ -107,9 +114,19 @@ public class TimelineActivity extends AppCompatActivity implements ComposeTweetF
                 android.R.color.holo_green_light,
                 android.R.color.holo_orange_light,
                 android.R.color.holo_red_light);
+    }
 
-        client = TwitterApplication.getRestClient();    //singleton client
-        populateTimeline(-1, -1, false);
+    private void processIntent() {
+        String preFill = getIntent().getStringExtra("preFill");
+        if (!TextUtils.isEmpty(preFill)) {
+            if (client.isNetworkAvailable()) {
+                FragmentManager fm = getSupportFragmentManager();
+                ComposeTweetFragment frag = ComposeTweetFragment.newInstance(currentUser, preFill);
+                frag.show(fm, "fragment_compose");
+            } else {
+                showNetworkUnavailableMessage();
+            }
+        }
     }
 
     //send api request to get timeline json
@@ -136,7 +153,9 @@ public class TimelineActivity extends AppCompatActivity implements ComposeTweetF
 
                 @Override
                 public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                    Log.d("DEBUG", "failure code: " + statusCode + " " + errorResponse.toString());
+                    if (errorResponse != null) {
+                        Log.d("DEBUG", "failure code: " + statusCode + " " + errorResponse.toString());
+                    }
                     //handle rate limit and try again later
                     if (statusCode == 429) {
                         Log.d("DEBUG", "rate limit reached, will try again in 30 seconds.");

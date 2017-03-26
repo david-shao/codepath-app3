@@ -11,5 +11,8 @@
     <string name="network_unavailable">Network Unavailable</string>
     <string name="back">Back</string>
     <string name="activity_tweet">Tweet</string>
+    <string name="compose_save_draft">Do you wish to save a draft?</string>
+    <string name="save">Save</string>
+    <string name="discard">Discard</string>
 
 </resources>

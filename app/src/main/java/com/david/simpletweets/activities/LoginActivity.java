@@ -2,6 +2,7 @@ package com.david.simpletweets.activities;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -21,10 +22,14 @@ import cz.msebera.android.httpclient.Header;
 //where user will sign in to twitter
 public class LoginActivity extends OAuthLoginActionBarActivity<TwitterClient> {
 
+    String preFill;
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_login);
+
+        processOutOfAppIntent();
 	}
 
 
@@ -47,7 +52,7 @@ public class LoginActivity extends OAuthLoginActionBarActivity<TwitterClient> {
                     User user = User.fromJSON(response);
                     user.setLoggedInUser(true);
                     user.save();
-                    launchTimeline(user);
+                    launchTimeline(user, preFill);
                 }
 
                 @Override
@@ -64,7 +69,7 @@ public class LoginActivity extends OAuthLoginActionBarActivity<TwitterClient> {
                     .where(User_Table.isLoggedInUser.eq(true))
                     .querySingle();
             if (user != null) {
-                launchTimeline(user);
+                launchTimeline(user, preFill);
             }
         }
 	}
@@ -83,10 +88,30 @@ public class LoginActivity extends OAuthLoginActionBarActivity<TwitterClient> {
 		getClient().connect();
 	}
 
-	private void launchTimeline(User user) {
+	private void launchTimeline(User user, String preFill) {
         Intent i = new Intent(LoginActivity.this, TimelineActivity.class);
         i.putExtra("user", user);
+        if (!TextUtils.isEmpty(preFill)) {
+            i.putExtra("preFill", preFill);
+        }
         startActivity(i);
+    }
+
+    private void processOutOfAppIntent() {
+        // Get intent, action and MIME type
+        Intent intent = getIntent();
+        String action = intent.getAction();
+        String type = intent.getType();
+
+        if (Intent.ACTION_SEND.equals(action) && type != null) {
+            if (type.equals("text/plain")) {
+                // Make sure to check whether returned data will be null.
+                String titleOfPage = intent.getStringExtra(Intent.EXTRA_SUBJECT);
+//                String urlOfPage = intent.getStringExtra(Intent.EXTRA_TEXT);
+//                Uri imageUriOfPage = intent.getParcelableExtra(Intent.EXTRA_STREAM);
+                preFill = titleOfPage;
+            }
+        }
     }
 
 }

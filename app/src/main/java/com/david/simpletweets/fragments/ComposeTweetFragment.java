@@ -1,10 +1,13 @@
 package com.david.simpletweets.fragments;
 
+import android.content.DialogInterface;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v7.app.AlertDialog;
 import android.text.Editable;
+import android.text.TextUtils;
 import android.text.TextWatcher;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -22,6 +25,7 @@ import com.david.simpletweets.TwitterApplication;
 import com.david.simpletweets.databinding.FragmentComposeBinding;
 import com.david.simpletweets.models.Tweet;
 import com.david.simpletweets.models.User;
+import com.david.simpletweets.utils.DraftUtil;
 import com.david.simpletweets.utils.StyleUtils;
 import com.loopj.android.http.JsonHttpResponseHandler;
 
@@ -48,6 +52,8 @@ public class ComposeTweetFragment extends DialogFragment {
     Tweet tweet;
     FragmentComposeBinding binding;
 
+    DraftUtil draftUtil;
+
     public ComposeTweetFragment() {
         //needs to be empty
     }
@@ -69,6 +75,15 @@ public class ComposeTweetFragment extends DialogFragment {
         return frag;
     }
 
+    public static ComposeTweetFragment newInstance(User user, String preFill) {
+        ComposeTweetFragment frag = new ComposeTweetFragment();
+        Bundle args = new Bundle();
+        args.putParcelable("user", user);
+        args.putString("preFill", preFill);
+        frag.setArguments(args);
+        return frag;
+    }
+
     public interface ComposeTweetListener {
         void onTweet(Tweet tweet);
     }
@@ -76,6 +91,8 @@ public class ComposeTweetFragment extends DialogFragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         binding = DataBindingUtil.inflate(inflater, R.layout.fragment_compose, container, true);
+        draftUtil = new DraftUtil(getContext());
+
         return binding.getRoot();
     }
 
@@ -101,19 +118,52 @@ public class ComposeTweetFragment extends DialogFragment {
         Glide.with(getContext()).load(user.getProfileImageUrl())
                 .into(ivProfileImage);
 
-        if (tweet != null) {
-            //we're replying to a tweet, so set reply string
-            etBody.setText(tweet.getUser().getScreenName() + " ");
+        //do some pre-filling if necessary
+        String preFill = getArguments().getString("preFill");
+        if (TextUtils.isEmpty(preFill)) {
+            //load any drafts if available
+            preFill = draftUtil.load();
+        }
+        if (!TextUtils.isEmpty(preFill) || tweet != null) {
+            if (tweet != null) {
+                //we're replying to a tweet, so set reply string
+                etBody.setText(tweet.getUser().getScreenName() + " ");
+            } else if (!TextUtils.isEmpty(preFill)) {
+                etBody.setText(preFill + " ");
+            }
             int length = etBody.getText().length();
             etBody.setSelection(length);
             int charCount = CHAR_COUNT_MAX - length;
             tvCharCount.setText("" + charCount);
         }
 
+        final DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                if (i == DialogInterface.BUTTON_POSITIVE) {
+                    //save draft
+                    draftUtil.save(etBody.getText().toString());
+                    dismiss();
+                } else if (i == DialogInterface.BUTTON_NEGATIVE) {
+                    draftUtil.discard();
+                    dismiss();
+                }
+            }
+        };
+
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                dismiss();
+                if (etBody.getText().length() > 0) {
+                    //ask if user wants to save draft
+                    AlertDialog.Builder dialogBuilder = new AlertDialog.Builder(getContext());
+                    dialogBuilder.setMessage(getResources().getString(R.string.compose_save_draft))
+                            .setPositiveButton(getResources().getString(R.string.save), dialogClickListener)
+                            .setNegativeButton(getResources().getString(R.string.discard), dialogClickListener);
+                    dialogBuilder.show();
+                } else {
+                    dismiss();
+                }
             }
         });
 
