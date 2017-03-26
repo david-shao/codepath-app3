@@ -1,5 +1,6 @@
 package com.david.simpletweets.activities;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
@@ -36,6 +37,8 @@ import java.util.List;
 import cz.msebera.android.httpclient.Header;
 
 public class TimelineActivity extends AppCompatActivity implements ComposeTweetFragment.ComposeTweetListener {
+
+    public static final int REQUEST_CODE_DETAILS = 20;
 
     private Toolbar toolbar;
     private User currentUser;
@@ -188,11 +191,33 @@ public class TimelineActivity extends AppCompatActivity implements ComposeTweetF
         return true;
     }
 
+    public User getCurrentUser() {
+        return currentUser;
+    }
+
     @Override
     public void onTweet(Tweet tweet) {
         tweets.add(0, tweet);
         aTweets.notifyItemInserted(0);
         rvTweets.scrollToPosition(0);
+    }
+
+    /**
+     * Callback when other activities finish.
+     * @param requestCode
+     * @param resultCode
+     * @param data
+     */
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK && requestCode == REQUEST_CODE_DETAILS) {
+            List<Tweet> replies = data.getParcelableArrayListExtra("replies");
+            if (!replies.isEmpty()) {
+                tweets.addAll(0, replies);
+                aTweets.notifyItemRangeInserted(0, replies.size());
+                rvTweets.scrollToPosition(0);
+            }
+        }
     }
 
     private void showNetworkUnavailableMessage() {

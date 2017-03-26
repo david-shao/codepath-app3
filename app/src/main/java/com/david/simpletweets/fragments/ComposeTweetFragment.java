@@ -45,6 +45,7 @@ public class ComposeTweetFragment extends DialogFragment {
     TextView tvCharCount;
 
     User user;
+    Tweet tweet;
     FragmentComposeBinding binding;
 
     public ComposeTweetFragment() {
@@ -55,6 +56,15 @@ public class ComposeTweetFragment extends DialogFragment {
         ComposeTweetFragment frag = new ComposeTweetFragment();
         Bundle args = new Bundle();
         args.putParcelable("user", user);
+        frag.setArguments(args);
+        return frag;
+    }
+
+    public static ComposeTweetFragment newInstance(User user, Tweet tweet) {
+        ComposeTweetFragment frag = new ComposeTweetFragment();
+        Bundle args = new Bundle();
+        args.putParcelable("user", user);
+        args.putParcelable("tweet", tweet);
         frag.setArguments(args);
         return frag;
     }
@@ -79,6 +89,7 @@ public class ComposeTweetFragment extends DialogFragment {
         tvCharCount = binding.tvCharCount;
 
         user = getArguments().getParcelable("user");
+        tweet = getArguments().getParcelable("tweet");
 
         setupViews();
     }
@@ -89,6 +100,15 @@ public class ComposeTweetFragment extends DialogFragment {
 
         Picasso.with(getContext()).load(user.getProfileImageUrl())
                 .into(ivProfileImage);
+
+        if (tweet != null) {
+            //we're replying to a tweet, so set reply string
+            etBody.setText(tweet.getUser().getScreenName() + " ");
+            int length = etBody.getText().length();
+            etBody.setSelection(length);
+            int charCount = CHAR_COUNT_MAX - length;
+            tvCharCount.setText("" + charCount);
+        }
 
         btnCancel.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -102,8 +122,12 @@ public class ComposeTweetFragment extends DialogFragment {
             public void onClick(View view) {
                 //make network call to post a tweet
                 String tweetBody = etBody.getText().toString();
+                long replyTweetId = -1;
+                if (tweet != null) {
+                    replyTweetId = tweet.getUid();
+                }
 
-                TwitterApplication.getRestClient().postStatusUpdate(tweetBody, new JsonHttpResponseHandler() {
+                TwitterApplication.getRestClient().postStatusUpdate(tweetBody, replyTweetId, new JsonHttpResponseHandler() {
                     @Override
                     public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
                         Tweet newTweet = Tweet.fromJSON(response);

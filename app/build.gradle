@@ -9,6 +9,7 @@ android {
         applicationId "com.david.simpletweets"
         minSdkVersion 16
         targetSdkVersion 25
+        vectorDrawables.useSupportLibrary = true
     }
 
     // Related to https://github.com/scribejava/scribejava/issues/480

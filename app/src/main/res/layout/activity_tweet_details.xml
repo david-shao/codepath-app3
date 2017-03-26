@@ -71,5 +71,15 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true" />
 
+        <ImageButton
+            android:id="@+id/ibReply"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            app:srcCompat="@drawable/ic_reply"
+            android:layout_below="@+id/tvBody"
+            android:layout_toRightOf="@+id/ivProfileImage"
+            android:layout_toEndOf="@+id/ivProfileImage"
+            android:onClick="onTweetReply"/>
+
     </RelativeLayout>
 </layout>

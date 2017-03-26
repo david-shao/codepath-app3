@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,6 +13,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.david.simpletweets.R;
+import com.david.simpletweets.activities.TimelineActivity;
 import com.david.simpletweets.activities.TweetDetailsActivity;
 import com.david.simpletweets.databinding.ItemTweetBinding;
 import com.david.simpletweets.models.Tweet;
@@ -60,7 +62,8 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
                 Intent i = new Intent(context, TweetDetailsActivity.class);
                 i.putExtra("tweet", tweet);
                 i.putExtra("pos", position);
-                context.startActivity(i);
+                i.putExtra("currentUser", ((TimelineActivity) context).getCurrentUser());
+                ((AppCompatActivity) context).startActivityForResult(i, TimelineActivity.REQUEST_CODE_DETAILS);
             }
         }
 

@@ -1,22 +1,30 @@
 package com.david.simpletweets.activities;
 
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
+import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.david.simpletweets.R;
 import com.david.simpletweets.databinding.ActivityTweetDetailsBinding;
+import com.david.simpletweets.fragments.ComposeTweetFragment;
 import com.david.simpletweets.models.Tweet;
+import com.david.simpletweets.models.User;
 import com.squareup.picasso.Picasso;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static com.raizlabs.android.dbflow.config.FlowManager.getContext;
 
-public class TweetDetailsActivity extends AppCompatActivity {
+public class TweetDetailsActivity extends AppCompatActivity implements ComposeTweetFragment.ComposeTweetListener {
 
     private Toolbar toolbar;
 
@@ -27,8 +35,11 @@ public class TweetDetailsActivity extends AppCompatActivity {
     private TextView tvDate;
 
     private Tweet tweet;
+    private User currentUser;
     private int position;
     private ActivityTweetDetailsBinding binding;
+
+    private List<Tweet> replies;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -36,7 +47,9 @@ public class TweetDetailsActivity extends AppCompatActivity {
         binding = DataBindingUtil.setContentView(this, R.layout.activity_tweet_details);
 
         tweet = getIntent().getParcelableExtra("tweet");
+        currentUser = getIntent().getParcelableExtra("currentUser");
         position = getIntent().getIntExtra("pos", 0);
+        replies = new ArrayList<>();
 
         setupViews();
     }
@@ -77,10 +90,27 @@ public class TweetDetailsActivity extends AppCompatActivity {
 
         switch (id) {
             case android.R.id.home:
+                if (!replies.isEmpty()) {
+                    Intent data = new Intent();
+                    data.putParcelableArrayListExtra("replies", (ArrayList<Tweet>) replies);
+                    setResult(RESULT_OK, data);
+                }
                 finish();
                 break;
         }
 
         return true;
+    }
+
+    public void onTweetReply(View view) {
+        FragmentManager fm = getSupportFragmentManager();
+        ComposeTweetFragment frag = ComposeTweetFragment.newInstance(currentUser, tweet);
+        frag.show(fm, "fragment_reply");
+    }
+
+    @Override
+    public void onTweet(Tweet tweet) {
+        //add tweet to beginning of replies list so it's always sorted most recent first
+        replies.add(0, tweet);
     }
 }
