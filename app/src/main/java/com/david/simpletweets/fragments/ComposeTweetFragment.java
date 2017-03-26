@@ -16,6 +16,7 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.david.simpletweets.R;
 import com.david.simpletweets.TwitterApplication;
 import com.david.simpletweets.databinding.FragmentComposeBinding;
@@ -23,7 +24,6 @@ import com.david.simpletweets.models.Tweet;
 import com.david.simpletweets.models.User;
 import com.david.simpletweets.utils.StyleUtils;
 import com.loopj.android.http.JsonHttpResponseHandler;
-import com.squareup.picasso.Picasso;
 
 import org.json.JSONObject;
 
@@ -98,7 +98,7 @@ public class ComposeTweetFragment extends DialogFragment {
         binding.setUser(user);
         binding.executePendingBindings();
 
-        Picasso.with(getContext()).load(user.getProfileImageUrl())
+        Glide.with(getContext()).load(user.getProfileImageUrl())
                 .into(ivProfileImage);
 
         if (tweet != null) {

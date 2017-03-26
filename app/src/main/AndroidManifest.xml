@@ -46,4 +46,7 @@
 
     </application>
 
+    <meta-data android:name="com.david.simpletweets.configs.GlideConfiguration"
+        android:value="GlideModule"/>
+
 </manifest>

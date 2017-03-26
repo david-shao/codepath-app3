@@ -13,6 +13,7 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.Toast;
 
 import com.david.simpletweets.R;
@@ -175,19 +176,6 @@ public class TimelineActivity extends AppCompatActivity implements ComposeTweetF
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
 
-        switch (id) {
-            case R.id.actCompose:
-                if (client.isNetworkAvailable()) {
-                    FragmentManager fm = getSupportFragmentManager();
-                    ComposeTweetFragment frag = ComposeTweetFragment.newInstance(currentUser);
-//                    frag.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_FullScreen);
-                    frag.show(fm, "fragment_compose");
-                } else {
-                    showNetworkUnavailableMessage();
-                }
-                break;
-        }
-
         return true;
     }
 
@@ -222,5 +210,16 @@ public class TimelineActivity extends AppCompatActivity implements ComposeTweetF
 
     private void showNetworkUnavailableMessage() {
         Toast.makeText(this, getResources().getText(R.string.network_unavailable), Toast.LENGTH_SHORT).show();
+    }
+
+    public void onCompose(View view) {
+        if (client.isNetworkAvailable()) {
+            FragmentManager fm = getSupportFragmentManager();
+            ComposeTweetFragment frag = ComposeTweetFragment.newInstance(currentUser);
+//            frag.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_FullScreen);
+            frag.show(fm, "fragment_compose");
+        } else {
+            showNetworkUnavailableMessage();
+        }
     }
 }

@@ -12,12 +12,12 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.david.simpletweets.R;
 import com.david.simpletweets.activities.TimelineActivity;
 import com.david.simpletweets.activities.TweetDetailsActivity;
 import com.david.simpletweets.databinding.ItemTweetBinding;
 import com.david.simpletweets.models.Tweet;
-import com.squareup.picasso.Picasso;
 
 import java.util.List;
 
@@ -107,7 +107,7 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
         viewHolder.bindTweet(tweet);
 
         viewHolder.ivProfileImage.setImageResource(android.R.color.transparent); //clear out old image for recycled view
-        Picasso.with(getContext()).load(tweet.getUser().getProfileImageUrl())
+        Glide.with(getContext()).load(tweet.getUser().getProfileImageUrl())
                 .into(viewHolder.ivProfileImage);
     }
 

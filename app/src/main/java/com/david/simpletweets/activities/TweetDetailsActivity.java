@@ -18,12 +18,12 @@ import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
 
+import com.bumptech.glide.Glide;
 import com.david.simpletweets.R;
 import com.david.simpletweets.databinding.ActivityTweetDetailsBinding;
 import com.david.simpletweets.fragments.ComposeTweetFragment;
 import com.david.simpletweets.models.Tweet;
 import com.david.simpletweets.models.User;
-import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,7 +81,7 @@ public class TweetDetailsActivity extends AppCompatActivity implements ComposeTw
         binding.setTweet(tweet);
         binding.executePendingBindings();
 
-        Picasso.with(getContext()).load(tweet.getUser().getProfileImageUrl())
+        Glide.with(getContext()).load(tweet.getUser().getProfileImageUrl())
                 .into(ivProfileImage);
 
         if (!TextUtils.isEmpty(tweet.getMediaType())) {
@@ -92,7 +92,7 @@ public class TweetDetailsActivity extends AppCompatActivity implements ComposeTw
                 //hide video view
                 vvEmbedVideo.setVisibility(View.GONE);
                 //load image
-                Picasso.with(getContext()).load(tweet.getMediaUrl())
+                Glide.with(getContext()).load(tweet.getMediaUrl())
                         .into(ivEmbedImage);
             } else if (tweet.getMediaType().equals("video")) {
                 //set reply button to be below embeded video
