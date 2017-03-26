@@ -1,15 +1,18 @@
 package com.david.simpletweets.adapters;
 
 import android.content.Context;
+import android.content.Intent;
 import android.databinding.DataBindingUtil;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.david.simpletweets.R;
+import com.david.simpletweets.activities.TweetDetailsActivity;
 import com.david.simpletweets.databinding.ItemTweetBinding;
 import com.david.simpletweets.models.Tweet;
 import com.squareup.picasso.Picasso;
@@ -22,7 +25,7 @@ import java.util.List;
 // taking Tweet objects and turning them into Views displayed in the list
 public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.ViewHolder> {
 
-    public class ViewHolder extends RecyclerView.ViewHolder {
+    public class ViewHolder extends RecyclerView.ViewHolder implements View.OnClickListener {
         private ItemTweetBinding binding;
         public ImageView ivProfileImage;
         public TextView tvUserName;
@@ -40,11 +43,25 @@ public class TweetsArrayAdapter extends RecyclerView.Adapter<TweetsArrayAdapter.
             tvUserName = binding.tvUserName;
             tvBody = binding.tvBody;
             tvDate = binding.tvDate;
+
+            itemView.getRoot().setOnClickListener(this);
         }
 
         public void bindTweet(Tweet tweet) {
             binding.setTweet(tweet);
             binding.executePendingBindings();
+        }
+
+        @Override
+        public void onClick(View view) {
+            int position = getAdapterPosition(); // gets item position
+            if (position != RecyclerView.NO_POSITION) { // Check if an item was deleted, but the user clicked it before the UI removed it
+                Tweet tweet = tweets.get(position);
+                Intent i = new Intent(context, TweetDetailsActivity.class);
+                i.putExtra("tweet", tweet);
+                i.putExtra("pos", position);
+                context.startActivity(i);
+            }
         }
 
     }

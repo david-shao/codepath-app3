@@ -3,11 +3,13 @@
 
     <string name="app_name">SimpleTweets</string>
     <string name="login_label">Connect To Twitter</string>
-    <string name="title_activity_timeline">Home Timeline</string>
+    <string name="title_activity_timeline">Timeline</string>
     <string name="btn_cancel">Cancel</string>
     <string name="btn_tweet">Tweet</string>
     <string name="et_tweet">What\'s happening?</string>
     <string name="action_compose">Compose</string>
     <string name="network_unavailable">Network Unavailable</string>
+    <string name="back">Back</string>
+    <string name="activity_tweet">Tweet</string>
 
 </resources>
