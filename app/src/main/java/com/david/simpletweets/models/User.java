@@ -59,9 +59,10 @@ public class User extends BaseModel implements Parcelable {
             user.uid = uid;
             user.screenName = "@" + jsonObject.getString("screen_name");
             user.profileImageUrl = jsonObject.getString("profile_image_url");
-            user.save();
         } catch (JSONException e) {
             e.printStackTrace();
+        } finally {
+            user.save();
         }
 
         return user;
@@ -112,6 +113,7 @@ public class User extends BaseModel implements Parcelable {
         this.uid = in.readLong();
         this.screenName = in.readString();
         this.profileImageUrl = in.readString();
+        this.isLoggedInUser = in.readByte() != 0;
     }
 
     @Override
@@ -125,6 +127,7 @@ public class User extends BaseModel implements Parcelable {
         parcel.writeLong(this.uid);
         parcel.writeString(this.screenName);
         parcel.writeString(this.profileImageUrl);
+        parcel.writeByte((byte) (this.isLoggedInUser ? 1 : 0));
     }
 
     public static final Parcelable.Creator<User> CREATOR = new Parcelable.Creator<User>() {

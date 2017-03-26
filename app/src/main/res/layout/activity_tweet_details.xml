@@ -71,15 +71,36 @@
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true" />
 
+        <ImageView
+            android:id="@+id/ivEmbedImage"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/tvBody"
+            android:layout_toEndOf="@+id/ivProfileImage"
+            android:layout_toRightOf="@+id/ivProfileImage"
+            tools:src="@mipmap/ic_launcher" />
+
+        <VideoView
+            android:id="@+id/vvEmbedVideo"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignLeft="@+id/tvBody"
+            android:layout_alignStart="@+id/tvBody"
+            android:layout_toRightOf="@+id/ivProfileImage"
+            android:layout_toEndOf="@+id/ivProfileImage"
+            android:layout_below="@+id/tvBody"
+            android:layout_alignParentRight="true"
+            android:layout_alignParentEnd="true" />
+
         <ImageButton
             android:id="@+id/ibReply"
             android:layout_width="20dp"
             android:layout_height="20dp"
             app:srcCompat="@drawable/ic_reply"
+            android:onClick="onTweetReply"
             android:layout_below="@+id/tvBody"
-            android:layout_toRightOf="@+id/ivProfileImage"
-            android:layout_toEndOf="@+id/ivProfileImage"
-            android:onClick="onTweetReply"/>
+            android:layout_alignLeft="@+id/tvBody"
+            android:layout_alignStart="@+id/tvBody" />
 
     </RelativeLayout>
 </layout>

@@ -2,7 +2,7 @@
 
 SimpleTweets is an android app that allows a user to view his Twitter timeline and post a new tweet. The app utilizes [Twitter REST API](https://dev.twitter.com/rest/public).
 
-Time spent: 18 hours spent in total
+Time spent: 19 hours spent in total
 
 ## User Stories
 
@@ -30,8 +30,8 @@ The following **optional** features are implemented:
 
 The following **bonus** features are implemented:
 
-* [ ] User can see embedded image media within the tweet detail view
-* [ ] User can watch embedded video within the tweet
+* [X] User can see embedded image media within the tweet detail view
+* [X] User can watch embedded video within the tweet
 * [X] Compose tweet functionality is built using modal overlay
 * [X] Use Parcelable instead of Serializable using the popular [Parceler library](http://guides.codepath.com/android/Using-Parceler).
 * [X] [Leverage RecyclerView](http://guides.codepath.com/android/Using-the-RecyclerView) as a replacement for the ListView and ArrayAdapter for all lists of tweets.
@@ -58,7 +58,7 @@ GIF created with [LiceCap](http://www.cockos.com/licecap/).
 
 ## Notes
 
-Describe any challenges encountered while building the app.
+Knowing when to use an activity vs when to use a dialog fragment can be a challenge.
 
 ## Open-source libraries used
 

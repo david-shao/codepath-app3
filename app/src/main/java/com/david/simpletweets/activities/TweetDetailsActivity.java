@@ -2,15 +2,21 @@ package com.david.simpletweets.activities;
 
 import android.content.Intent;
 import android.databinding.DataBindingUtil;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.FragmentManager;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.TextUtils;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageButton;
 import android.widget.ImageView;
+import android.widget.MediaController;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.VideoView;
 
 import com.david.simpletweets.R;
 import com.david.simpletweets.databinding.ActivityTweetDetailsBinding;
@@ -33,6 +39,9 @@ public class TweetDetailsActivity extends AppCompatActivity implements ComposeTw
     private TextView tvBody;
     private TextView tvName;
     private TextView tvDate;
+    private ImageButton ibReply;
+    private ImageView ivEmbedImage;
+    private VideoView vvEmbedVideo;
 
     private Tweet tweet;
     private User currentUser;
@@ -65,12 +74,44 @@ public class TweetDetailsActivity extends AppCompatActivity implements ComposeTw
         tvBody = binding.tvBody;
         tvName = binding.tvName;
         tvDate = binding.tvDate;
+        ibReply = binding.ibReply;
+        ivEmbedImage = binding.ivEmbedImage;
+        vvEmbedVideo = binding.vvEmbedVideo;
 
         binding.setTweet(tweet);
         binding.executePendingBindings();
 
         Picasso.with(getContext()).load(tweet.getUser().getProfileImageUrl())
                 .into(ivProfileImage);
+
+        if (!TextUtils.isEmpty(tweet.getMediaType())) {
+            if (tweet.getMediaType().equals("photo")) {
+                //set reply button to be below embeded image
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) ibReply.getLayoutParams();
+                params.addRule(RelativeLayout.BELOW, R.id.ivEmbedImage);
+                //hide video view
+                vvEmbedVideo.setVisibility(View.GONE);
+                //load image
+                Picasso.with(getContext()).load(tweet.getMediaUrl())
+                        .into(ivEmbedImage);
+            } else if (tweet.getMediaType().equals("video")) {
+                //set reply button to be below embeded video
+                RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) ibReply.getLayoutParams();
+                params.addRule(RelativeLayout.BELOW, R.id.vvEmbedVideo);
+                //hide image view
+                ivEmbedImage.setVisibility(View.GONE);
+                //load video
+                MediaController mediaController = new MediaController(this);
+                mediaController.setAnchorView(vvEmbedVideo);
+                Uri vidUri = Uri.parse(tweet.getMediaUrl());
+                vvEmbedVideo.setMediaController(mediaController);
+                vvEmbedVideo.setVideoURI(vidUri);
+                vvEmbedVideo.start();
+            }
+        } else {
+            ivEmbedImage.setVisibility(View.GONE);
+            vvEmbedVideo.setVisibility(View.GONE);
+        }
     }
 
     @Override

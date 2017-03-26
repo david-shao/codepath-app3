@@ -5,7 +5,6 @@ import android.content.Context;
 
 import com.david.simpletweets.network.TwitterClient;
 import com.raizlabs.android.dbflow.config.FlowConfig;
-import com.raizlabs.android.dbflow.config.FlowLog;
 import com.raizlabs.android.dbflow.config.FlowManager;
 
 /*
@@ -25,7 +24,7 @@ public class TwitterApplication extends Application {
 		super.onCreate();
 
 		FlowManager.init(new FlowConfig.Builder(this).build());
-		FlowLog.setMinimumLoggingLevel(FlowLog.Level.V);
+//		FlowLog.setMinimumLoggingLevel(FlowLog.Level.V);
 
 		TwitterApplication.context = this;
 	}

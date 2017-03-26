@@ -41,6 +41,12 @@ public class Tweet extends BaseModel implements Parcelable {
     @Column
     private String createdAt;
 
+    @Column
+    private String mediaUrl;
+
+    @Column
+    private String mediaType;
+
     private static long oldestId = Long.MAX_VALUE;
     private static long newestId = Long.MIN_VALUE;
 
@@ -60,9 +66,33 @@ public class Tweet extends BaseModel implements Parcelable {
             }
             tweet.createdAt = jsonObject.getString("created_at");
             tweet.user = User.fromJSON(jsonObject.getJSONObject("user"));
-            tweet.save();
+            if (jsonObject.has("extended_entities")) {
+                JSONObject extEnt = jsonObject.getJSONObject("extended_entities");
+                JSONArray media = extEnt.getJSONArray("media");
+                JSONObject firstMedia = media.getJSONObject(0);
+                String type = firstMedia.getString("type");
+                tweet.mediaType = type;
+                //parse image url
+                if (type.equals("photo")) {
+                    tweet.mediaUrl = firstMedia.getString("media_url");
+                } else if (type.equals("video")) {
+                    //video url is more deeply nested
+                    JSONObject videoInfo = firstMedia.getJSONObject("video_info");
+                    JSONArray vars = videoInfo.getJSONArray("variants");
+                    for (int i = 0; i < vars.length(); i++) {
+                        //just pick the first available video url for now
+                        JSONObject vid = vars.getJSONObject(i);
+                        if (vid.getString("content_type").equals("video/mp4")) {
+                            tweet.mediaUrl = vid.getString("url");
+                            break;
+                        }
+                    }
+                }
+            }
         } catch (JSONException e) {
             e.printStackTrace();
+        } finally {
+            tweet.save();
         }
 
         //return tweet object
@@ -135,11 +165,29 @@ public class Tweet extends BaseModel implements Parcelable {
         return newestId;
     }
 
+    public String getMediaUrl() {
+        return mediaUrl;
+    }
+
+    public String getMediaType() {
+        return mediaType;
+    }
+
+    public void setMediaUrl(String mediaUrl) {
+        this.mediaUrl = mediaUrl;
+    }
+
+    public void setMediaType(String mediaType) {
+        this.mediaType = mediaType;
+    }
+
     private Tweet(Parcel in) {
         this.body = in.readString();
         this.uid = in.readLong();
         this.user = in.readParcelable(User.class.getClassLoader());
         this.createdAt = in.readString();
+        this.mediaType = in.readString();
+        this.mediaUrl = in.readString();
     }
 
     public String getRelativeTimeAgo() {
@@ -158,6 +206,8 @@ public class Tweet extends BaseModel implements Parcelable {
         parcel.writeLong(this.uid);
         parcel.writeParcelable(this.user, i);
         parcel.writeString(this.createdAt);
+        parcel.writeString(this.mediaType);
+        parcel.writeString(this.mediaUrl);
     }
 
     public static final Parcelable.Creator<Tweet> CREATOR = new Parcelable.Creator<Tweet>() {
