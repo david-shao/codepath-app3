@@ -36,6 +36,8 @@
             android:layout_height="wrap_content"
             tools:text="TextView"
             android:text="@{tweet.user.name}"
+            android:layout_marginBottom="5dp"
+            android:layout_marginRight="5dp"
             android:layout_below="@+id/toolbar"
             android:layout_toRightOf="@+id/ivProfileImage"
             android:layout_toEndOf="@+id/ivProfileImage" />
@@ -48,6 +50,7 @@
             android:layout_below="@+id/tvName"
             android:layout_toRightOf="@+id/ivProfileImage"
             android:layout_toEndOf="@+id/ivProfileImage"
+            android:layout_marginBottom="5dp"
             android:autoLink="all"
             android:text="@{tweet.body}"/>
 
@@ -90,7 +93,8 @@
             android:layout_toEndOf="@+id/ivProfileImage"
             android:layout_below="@+id/tvBody"
             android:layout_alignParentRight="true"
-            android:layout_alignParentEnd="true" />
+            android:layout_alignParentEnd="true"
+            android:visibility="invisible" />
 
         <ImageButton
             android:id="@+id/ibReply"

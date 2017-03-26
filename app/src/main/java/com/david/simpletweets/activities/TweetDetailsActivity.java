@@ -101,12 +101,14 @@ public class TweetDetailsActivity extends AppCompatActivity implements ComposeTw
                 //hide image view
                 ivEmbedImage.setVisibility(View.GONE);
                 //load video
-                MediaController mediaController = new MediaController(this);
-                mediaController.setAnchorView(vvEmbedVideo);
                 Uri vidUri = Uri.parse(tweet.getMediaUrl());
-                vvEmbedVideo.setMediaController(mediaController);
                 vvEmbedVideo.setVideoURI(vidUri);
+                MediaController mediaController = new MediaController(TweetDetailsActivity.this);
+                mediaController.setAnchorView(vvEmbedVideo);
+                vvEmbedVideo.setMediaController(mediaController);
+                //start video
                 vvEmbedVideo.start();
+                vvEmbedVideo.setVisibility(View.VISIBLE);
             }
         } else {
             ivEmbedImage.setVisibility(View.GONE);
