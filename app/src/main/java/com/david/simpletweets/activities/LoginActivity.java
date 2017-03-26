@@ -8,9 +8,11 @@ import android.view.View;
 
 import com.codepath.oauth.OAuthLoginActionBarActivity;
 import com.david.simpletweets.R;
-import com.david.simpletweets.TwitterClient;
 import com.david.simpletweets.models.User;
+import com.david.simpletweets.models.User_Table;
+import com.david.simpletweets.network.TwitterClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 
 import org.json.JSONObject;
 
@@ -38,20 +40,33 @@ public class LoginActivity extends OAuthLoginActionBarActivity<TwitterClient> {
 	@Override
 	public void onLoginSuccess() {
         //get logged in user
-        getClient().getLoggedInUser(new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
-                User user = User.fromJSON(response);
-                Intent i = new Intent(LoginActivity.this, TimelineActivity.class);
-                i.putExtra("user", user);
-                startActivity(i);
-            }
+        if (getClient().isNetworkAvailable()) {
+            getClient().getLoggedInUser(new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONObject response) {
+                    User user = User.fromJSON(response);
+                    user.setLoggedInUser(true);
+                    user.save();
+                    launchTimeline(user);
+                }
 
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Log.d("DEBUG", "Get current user failure " + errorResponse.toString());
+                @Override
+                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                    if (errorResponse != null) {
+                        Log.d("DEBUG", "Get current user failure " + errorResponse.toString());
+                    }
+                }
+            });
+        } else {
+            //check if we have logged in before, if so, go to timeline with tweets from db
+            User user = SQLite.select()
+                    .from(User.class)
+                    .where(User_Table.isLoggedInUser.eq(true))
+                    .querySingle();
+            if (user != null) {
+                launchTimeline(user);
             }
-        });
+        }
 	}
 
 	// OAuth authentication flow failed, handle the error
@@ -67,5 +82,11 @@ public class LoginActivity extends OAuthLoginActionBarActivity<TwitterClient> {
 	public void loginToRest(View view) {
 		getClient().connect();
 	}
+
+	private void launchTimeline(User user) {
+        Intent i = new Intent(LoginActivity.this, TimelineActivity.class);
+        i.putExtra("user", user);
+        startActivity(i);
+    }
 
 }

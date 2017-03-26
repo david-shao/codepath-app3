@@ -2,7 +2,7 @@
 
 SimpleTweets is an android app that allows a user to view his Twitter timeline and post a new tweet. The app utilizes [Twitter REST API](https://dev.twitter.com/rest/public).
 
-Time spent: 11 hours spent in total
+Time spent: 14 hours spent in total
 
 ## User Stories
 
@@ -24,7 +24,7 @@ The following **optional** features are implemented:
 * [X] User can **see a counter with total number of characters left for tweet** on compose tweet page
 * [X] User can **click a link within a tweet body** on tweet details view. The click will launch the web browser with relevant page opened.
 * [X] User can **pull down to refresh tweets timeline**
-* [ ] User can **open the twitter app offline and see last loaded tweets**. Persisted in SQLite tweets are refreshed on every application launch. While "live data" is displayed when app can get it from Twitter API, it is also saved for use in offline mode.
+* [X] User can **open the twitter app offline and see last loaded tweets**. Persisted in SQLite tweets are refreshed on every application launch. While "live data" is displayed when app can get it from Twitter API, it is also saved for use in offline mode.
 * [ ] User can tap a tweet to **open a detailed tweet view**
 * [ ] User can **select "reply" from detail view to respond to a tweet**
 
@@ -45,7 +45,8 @@ The following **bonus** features are implemented:
 
 The following **additional** features are implemented:
 
-* [ ] Change character counter to red when over 140 characters
+* [X] If rate limit is reached, client will retry every 30 seconds until successful
+* [X] Change character counter to red when over 140 characters
 
 ## Video Walkthrough
 

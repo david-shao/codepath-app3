@@ -21,6 +21,7 @@ import com.david.simpletweets.TwitterApplication;
 import com.david.simpletweets.databinding.FragmentComposeBinding;
 import com.david.simpletweets.models.Tweet;
 import com.david.simpletweets.models.User;
+import com.david.simpletweets.utils.StyleUtils;
 import com.loopj.android.http.JsonHttpResponseHandler;
 import com.squareup.picasso.Picasso;
 
@@ -128,7 +129,11 @@ public class ComposeTweetFragment extends DialogFragment {
             @Override
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 int charCount = CHAR_COUNT_MAX - charSequence.length();
-                tvCharCount.setText("" + charCount);
+                if (charCount < 0) {
+                    tvCharCount.setText(StyleUtils.applyColor("" + charCount, getResources().getColor(android.R.color.holo_red_light)));
+                } else {
+                    tvCharCount.setText("" + charCount);
+                }
             }
 
             @Override

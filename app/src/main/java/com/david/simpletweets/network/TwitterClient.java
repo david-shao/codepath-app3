@@ -1,6 +1,9 @@
-package com.david.simpletweets;
+package com.david.simpletweets.network;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
+import android.util.Log;
 
 import com.codepath.oauth.OAuthBaseClient;
 import com.loopj.android.http.AsyncHttpResponseHandler;
@@ -76,5 +79,12 @@ public class TwitterClient extends OAuthBaseClient {
         params.put("status", body);
 
         client.post(apiUrl, params, handler);
+    }
+
+    public boolean isNetworkAvailable() {
+        ConnectivityManager connectivityManager = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetworkInfo = connectivityManager.getActiveNetworkInfo();
+        Log.d("DEBUG", "network available returning: " + (activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting()));
+        return activeNetworkInfo != null && activeNetworkInfo.isConnectedOrConnecting();
     }
 }

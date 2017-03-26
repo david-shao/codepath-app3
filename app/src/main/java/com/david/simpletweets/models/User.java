@@ -3,30 +3,63 @@ package com.david.simpletweets.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.david.simpletweets.MyDatabase;
+import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
+import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
+import com.raizlabs.android.dbflow.structure.BaseModel;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 
 /**
  * Created by David on 3/23/2017.
  */
+@Table(database = MyDatabase.class)
+@org.parceler.Parcel(analyze = {User.class})
+public class User extends BaseModel implements Parcelable {
 
-public class User implements Parcelable {
+    @Column
     private String name;
+
+    @Column
+    @PrimaryKey
     private long uid;
+
+    @Column
     private String screenName;
+
+    @Column
     private String profileImageUrl;
+
+    @Column
+    private boolean isLoggedInUser;
 
     public User() {
     }
 
     public static User fromJSON(JSONObject jsonObject) {
-        User user = new User();
-
+        User user = null;
         try {
+            long uid = jsonObject.getLong("id");
+            User existingUser = SQLite.select()
+                    .from(User.class)
+                    .where(User_Table.uid.eq(uid))
+                    .querySingle();
+
+            if (existingUser != null) {
+                user = existingUser;
+            } else {
+                user = new User();
+                user.isLoggedInUser = false;
+            }
+
             user.name = jsonObject.getString("name");
-            user.uid = jsonObject.getLong("id");
+            user.uid = uid;
             user.screenName = "@" + jsonObject.getString("screen_name");
             user.profileImageUrl = jsonObject.getString("profile_image_url");
+            user.save();
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -48,6 +81,30 @@ public class User implements Parcelable {
 
     public String getProfileImageUrl() {
         return profileImageUrl;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setUid(long uid) {
+        this.uid = uid;
+    }
+
+    public void setScreenName(String screenName) {
+        this.screenName = screenName;
+    }
+
+    public void setProfileImageUrl(String profileImageUrl) {
+        this.profileImageUrl = profileImageUrl;
+    }
+
+    public boolean isLoggedInUser() {
+        return isLoggedInUser;
+    }
+
+    public void setLoggedInUser(boolean loggedInUser) {
+        isLoggedInUser = loggedInUser;
     }
 
     private User(Parcel in) {

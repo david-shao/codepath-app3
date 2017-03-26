@@ -12,17 +12,20 @@ import android.support.v7.widget.Toolbar;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.david.simpletweets.R;
 import com.david.simpletweets.TwitterApplication;
-import com.david.simpletweets.TwitterClient;
 import com.david.simpletweets.adapters.TweetsArrayAdapter;
 import com.david.simpletweets.databinding.ActivityTimelineBinding;
 import com.david.simpletweets.fragments.ComposeTweetFragment;
 import com.david.simpletweets.listeners.EndlessRecyclerViewScrollListener;
 import com.david.simpletweets.models.Tweet;
+import com.david.simpletweets.models.Tweet_Table;
 import com.david.simpletweets.models.User;
+import com.david.simpletweets.network.TwitterClient;
 import com.loopj.android.http.JsonHttpResponseHandler;
+import com.raizlabs.android.dbflow.sql.language.SQLite;
 
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -72,8 +75,12 @@ public class TimelineActivity extends AppCompatActivity implements ComposeTweetF
         scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override
             public void onLoadMore(int page, int totalItemsCount, RecyclerView view) {
-                Log.d("DEBUG", "scrolling to page " + (page));
-                populateTimeline(Tweet.getOldestId() - 1, -1, false);
+                if (client.isNetworkAvailable()) {
+                    Log.d("DEBUG", "scrolling to page " + (page));
+                    populateTimeline(Tweet.getOldestId() - 1, -1, false);
+                } else {
+                    showNetworkUnavailableMessage();
+                }
             }
         };
         rvTweets.addOnScrollListener(scrollListener);
@@ -82,8 +89,14 @@ public class TimelineActivity extends AppCompatActivity implements ComposeTweetF
         swipeContainer.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
             @Override
             public void onRefresh() {
-                Log.d("DEBUG", "refreshing tweets!");
-                populateTimeline(-1, Tweet.getNewestId(), true);
+                if (client.isNetworkAvailable()) {
+                    Log.d("DEBUG", "refreshing tweets!");
+//                    populateTimeline(-1, Tweet.getNewestId(), true);
+                    populateTimeline(-1, -1, true);
+                } else {
+                    showNetworkUnavailableMessage();
+                    swipeContainer.setRefreshing(false);
+                }
             }
         });
         swipeContainer.setColorSchemeResources(android.R.color.holo_blue_bright,
@@ -98,39 +111,50 @@ public class TimelineActivity extends AppCompatActivity implements ComposeTweetF
     //send api request to get timeline json
     //fill listview by creating the tweet objects from json
     private void populateTimeline(final long oldestId, final long newestId, final boolean refreshing) {
-        client.getHomeTimeline(oldestId, newestId, new JsonHttpResponseHandler() {
-            @Override
-            public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
-//                Log.d("DEBUG", "success! " + response.toString());
-                List<Tweet> newItems = Tweet.fromJSONArray(response);
-                if (refreshing) {
-                    tweets.addAll(0, newItems);
-                    aTweets.notifyItemRangeInserted(0, newItems.size());
-                    rvTweets.scrollToPosition(0);
-                    swipeContainer.setRefreshing(false);
-                } else {
-                    int curSize = aTweets.getItemCount();
-                    tweets.addAll(newItems);
-                    aTweets.notifyItemRangeInserted(curSize, newItems.size());
+        if (client.isNetworkAvailable()) {
+            client.getHomeTimeline(oldestId, newestId, new JsonHttpResponseHandler() {
+                @Override
+                public void onSuccess(int statusCode, Header[] headers, JSONArray response) {
+                    //                Log.d("DEBUG", "success! " + response.toString());
+                    List<Tweet> newItems = Tweet.fromJSONArray(response);
+                    if (refreshing) {
+                        tweets.clear();
+                        tweets.addAll(newItems);
+                        aTweets.notifyDataSetChanged();
+                        rvTweets.scrollToPosition(0);
+                        swipeContainer.setRefreshing(false);
+                    } else {
+                        int curSize = aTweets.getItemCount();
+                        tweets.addAll(newItems);
+                        aTweets.notifyItemRangeInserted(curSize, newItems.size());
+                    }
                 }
-            }
 
-            @Override
-            public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
-                Log.d("DEBUG", "failure code: " + statusCode + " " + errorResponse.toString());
-                //handle rate limit and try again later
-                if (statusCode == 429) {
-                    Log.d("DEBUG", "rate limit reached, will try again in 30 seconds.");
-                    Runnable runnable = new Runnable() {
-                        @Override
-                        public void run() {
-                            populateTimeline(oldestId, newestId, refreshing);
-                        }
-                    };
-                    handler.postDelayed(runnable, 30000);
+                @Override
+                public void onFailure(int statusCode, Header[] headers, Throwable throwable, JSONObject errorResponse) {
+                    Log.d("DEBUG", "failure code: " + statusCode + " " + errorResponse.toString());
+                    //handle rate limit and try again later
+                    if (statusCode == 429) {
+                        Log.d("DEBUG", "rate limit reached, will try again in 30 seconds.");
+                        Runnable runnable = new Runnable() {
+                            @Override
+                            public void run() {
+                                populateTimeline(oldestId, newestId, refreshing);
+                            }
+                        };
+                        handler.postDelayed(runnable, 30000);
+                    }
                 }
-            }
-        });
+            });
+        } else {
+            showNetworkUnavailableMessage();
+            //load from db if network not available
+            tweets.addAll(SQLite.select()
+                    .from(Tweet.class)
+                    .orderBy(Tweet_Table.uid, false)
+                    .queryList());
+            aTweets.notifyItemRangeInserted(0, tweets.size());
+        }
     }
 
     @Override
@@ -150,10 +174,14 @@ public class TimelineActivity extends AppCompatActivity implements ComposeTweetF
 
         switch (id) {
             case R.id.actCompose:
-                FragmentManager fm = getSupportFragmentManager();
-                ComposeTweetFragment frag = ComposeTweetFragment.newInstance(currentUser);
-//                frag.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_FullScreen);
-                frag.show(fm, "fragment_compose");
+                if (client.isNetworkAvailable()) {
+                    FragmentManager fm = getSupportFragmentManager();
+                    ComposeTweetFragment frag = ComposeTweetFragment.newInstance(currentUser);
+//                    frag.setStyle(DialogFragment.STYLE_NORMAL, R.style.Dialog_FullScreen);
+                    frag.show(fm, "fragment_compose");
+                } else {
+                    showNetworkUnavailableMessage();
+                }
                 break;
         }
 
@@ -165,5 +193,9 @@ public class TimelineActivity extends AppCompatActivity implements ComposeTweetF
         tweets.add(0, tweet);
         aTweets.notifyItemInserted(0);
         rvTweets.scrollToPosition(0);
+    }
+
+    private void showNetworkUnavailableMessage() {
+        Toast.makeText(this, getResources().getText(R.string.network_unavailable), Toast.LENGTH_SHORT).show();
     }
 }

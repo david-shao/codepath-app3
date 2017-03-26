@@ -3,7 +3,13 @@ package com.david.simpletweets.models;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.david.simpletweets.MyDatabase;
 import com.david.simpletweets.utils.SimpleDateUtils;
+import com.raizlabs.android.dbflow.annotation.Column;
+import com.raizlabs.android.dbflow.annotation.ForeignKey;
+import com.raizlabs.android.dbflow.annotation.PrimaryKey;
+import com.raizlabs.android.dbflow.annotation.Table;
+import com.raizlabs.android.dbflow.structure.BaseModel;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -17,11 +23,22 @@ import java.util.List;
  */
 
 //parse json and store data, encapsulate state logic or display logic
-public class Tweet implements Parcelable {
+@Table(database = MyDatabase.class)
+@org.parceler.Parcel(analyze = {Tweet.class})
+public class Tweet extends BaseModel implements Parcelable {
     //list out attributes
+    @Column
     private String body;
+
+    @Column
+    @PrimaryKey
     private long uid; //unique id for tweet
+
+    @Column
+    @ForeignKey(saveForeignKeyModel = true)
     private User user;
+
+    @Column
     private String createdAt;
 
     private static long oldestId = Long.MAX_VALUE;
@@ -43,6 +60,7 @@ public class Tweet implements Parcelable {
             }
             tweet.createdAt = jsonObject.getString("created_at");
             tweet.user = User.fromJSON(jsonObject.getJSONObject("user"));
+            tweet.save();
         } catch (JSONException e) {
             e.printStackTrace();
         }
@@ -91,6 +109,22 @@ public class Tweet implements Parcelable {
 
     public String getCreatedAt() {
         return createdAt;
+    }
+
+    public void setBody(String body) {
+        this.body = body;
+    }
+
+    public void setUid(long uid) {
+        this.uid = uid;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public void setCreatedAt(String createdAt) {
+        this.createdAt = createdAt;
     }
 
     public static long getOldestId() {
