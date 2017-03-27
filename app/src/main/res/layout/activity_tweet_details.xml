@@ -81,7 +81,8 @@
             android:layout_below="@+id/tvBody"
             android:layout_toEndOf="@+id/ivProfileImage"
             android:layout_toRightOf="@+id/ivProfileImage"
-            tools:src="@mipmap/ic_launcher" />
+            tools:src="@mipmap/ic_launcher"
+            android:visibility="gone" />
 
         <VideoView
             android:id="@+id/vvEmbedVideo"
@@ -94,7 +95,7 @@
             android:layout_below="@+id/tvBody"
             android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
-            android:visibility="invisible" />
+            android:visibility="gone" />
 
         <ImageButton
             android:id="@+id/ibReply"

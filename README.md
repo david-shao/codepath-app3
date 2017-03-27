@@ -2,7 +2,7 @@
 
 SimpleTweets is an android app that allows a user to view his Twitter timeline and post a new tweet. The app utilizes [Twitter REST API](https://dev.twitter.com/rest/public).
 
-Time spent: 22 hours spent in total
+Time spent: 23 hours spent in total
 
 ## User Stories
 
@@ -51,6 +51,8 @@ The following **additional** features are implemented:
 ## Video Walkthrough
 
 Here's a walkthrough of implemented user stories:
+
+<img src='gifs/optionals1.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 <img src='gifs/basics.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 

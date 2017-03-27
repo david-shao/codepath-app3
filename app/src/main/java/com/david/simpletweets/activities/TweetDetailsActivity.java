@@ -89,8 +89,7 @@ public class TweetDetailsActivity extends AppCompatActivity implements ComposeTw
                 //set reply button to be below embeded image
                 RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) ibReply.getLayoutParams();
                 params.addRule(RelativeLayout.BELOW, R.id.ivEmbedImage);
-                //hide video view
-                vvEmbedVideo.setVisibility(View.GONE);
+                ivEmbedImage.setVisibility(View.VISIBLE);
                 //load image
                 Glide.with(getContext()).load(tweet.getMediaUrl())
                         .into(ivEmbedImage);
@@ -98,8 +97,6 @@ public class TweetDetailsActivity extends AppCompatActivity implements ComposeTw
                 //set reply button to be below embeded video
                 RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) ibReply.getLayoutParams();
                 params.addRule(RelativeLayout.BELOW, R.id.vvEmbedVideo);
-                //hide image view
-                ivEmbedImage.setVisibility(View.GONE);
                 //load video
                 Uri vidUri = Uri.parse(tweet.getMediaUrl());
                 vvEmbedVideo.setVideoURI(vidUri);
@@ -110,9 +107,6 @@ public class TweetDetailsActivity extends AppCompatActivity implements ComposeTw
                 vvEmbedVideo.start();
                 vvEmbedVideo.setVisibility(View.VISIBLE);
             }
-        } else {
-            ivEmbedImage.setVisibility(View.GONE);
-            vvEmbedVideo.setVisibility(View.GONE);
         }
     }
 
