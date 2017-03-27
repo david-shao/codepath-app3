@@ -47,11 +47,14 @@ The following **additional** features are implemented:
 
 * [X] If rate limit is reached, client will retry every 30 seconds until successful
 * [X] Change character counter to red when over 140 characters
-* [X] Used heterogenous layouts inside RecyclerView for timeline
+* [X] Used heterogenous layouts inside RecyclerView for timeline to show embeded images and a play icon for videos
+* [X] Added reply to timeline view
 
 ## Video Walkthrough
 
 Here's a walkthrough of implemented user stories:
+
+<img src='gifs/optionals2.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 
 <img src='gifs/optionals1.gif' title='Video Walkthrough' width='' alt='Video Walkthrough' />
 

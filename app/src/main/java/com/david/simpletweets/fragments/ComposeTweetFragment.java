@@ -133,7 +133,7 @@ public class ComposeTweetFragment extends DialogFragment {
                 //we're replying to a tweet, so set reply string
                 etBody.setText(tweet.getUser().getScreenName() + " ");
             } else if (!TextUtils.isEmpty(preFill)) {
-                etBody.setText(preFill + " ");
+                etBody.setText(preFill);
             }
             int length = etBody.getText().length();
             etBody.setSelection(length);
@@ -188,6 +188,7 @@ public class ComposeTweetFragment extends DialogFragment {
                         ComposeTweetListener listener = (ComposeTweetListener) getActivity();
                         listener.onTweet(newTweet);
 
+                        draftUtil.discard();
                         dismiss();
                     }
 
