@@ -3,5 +3,10 @@
     <color name="cursorAccent">#FFFFFF</color>
     <color name="controlNormal">#FFFFFF</color>
     <color name="controlActivated">#5faced</color>
-    <color name="bgColor">#000000</color>
+    <color name="bgColor">#5EAFED</color>
+    <color name="borderColor">#FFFFFF</color>
+    <color name="buttonTextColor">#FFFFFF</color>
+    <color name="partition">#D8D3D8</color>
+    <color name="tweetBody">#343F43</color>
+    <color name="tweetMisc">#A3A1A8</color>
 </resources>

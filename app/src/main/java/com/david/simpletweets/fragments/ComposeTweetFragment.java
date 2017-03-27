@@ -5,6 +5,7 @@ import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.DialogFragment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -16,6 +17,7 @@ import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
@@ -41,10 +43,11 @@ public class ComposeTweetFragment extends DialogFragment {
 
     private final int CHAR_COUNT_MAX = 140;
 
-    Button btnCancel;
+    ImageButton ibCancel;
     Button btnTweet;
     ImageView ivProfileImage;
     TextView tvUserName;
+    TextView tvName;
     EditText etBody;
     TextView tvCharCount;
 
@@ -98,10 +101,11 @@ public class ComposeTweetFragment extends DialogFragment {
 
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
-        btnCancel = binding.btnCancel;
+        ibCancel = binding.ibCancel;
         btnTweet = binding.btnTweet;
         ivProfileImage = binding.ivProfileImage;
         tvUserName = binding.tvUserName;
+        tvName = binding.tvName;
         etBody = binding.etBody;
         tvCharCount = binding.tvCharCount;
 
@@ -151,7 +155,7 @@ public class ComposeTweetFragment extends DialogFragment {
             }
         };
 
-        btnCancel.setOnClickListener(new View.OnClickListener() {
+        ibCancel.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 if (etBody.getText().length() > 0) {
@@ -204,7 +208,7 @@ public class ComposeTweetFragment extends DialogFragment {
             public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
                 int charCount = CHAR_COUNT_MAX - charSequence.length();
                 if (charCount < 0) {
-                    tvCharCount.setText(StyleUtils.applyColor("" + charCount, getResources().getColor(android.R.color.holo_red_light)));
+                    tvCharCount.setText(StyleUtils.applyColor("" + charCount, ContextCompat.getColor(getContext(), android.R.color.holo_red_light)));
                 } else {
                     tvCharCount.setText("" + charCount);
                 }

@@ -1,10 +1,13 @@
 package com.david.simpletweets.activities;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.os.Handler;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.FragmentManager;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
@@ -21,6 +24,7 @@ import com.david.simpletweets.R;
 import com.david.simpletweets.TwitterApplication;
 import com.david.simpletweets.adapters.TweetsArrayAdapter;
 import com.david.simpletweets.databinding.ActivityTimelineBinding;
+import com.david.simpletweets.decorators.CustomDividerItemDecoration;
 import com.david.simpletweets.fragments.ComposeTweetFragment;
 import com.david.simpletweets.listeners.EndlessRecyclerViewScrollListener;
 import com.david.simpletweets.models.Tweet;
@@ -50,6 +54,7 @@ public class TimelineActivity extends AppCompatActivity implements ComposeTweetF
     private EndlessRecyclerViewScrollListener scrollListener;
     private RecyclerView rvTweets;
     private SwipeRefreshLayout swipeContainer;
+    private FloatingActionButton fabCompose;
 
     private Handler handler;
 
@@ -78,10 +83,16 @@ public class TimelineActivity extends AppCompatActivity implements ComposeTweetF
         tweets = new ArrayList<>();
         aTweets = new TweetsArrayAdapter(this, tweets);
         rvTweets.setAdapter(aTweets);
+        fabCompose = binding.fabCompose;
+
+        //update color
+        fabCompose.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.bgColor)));
 
         // Set layout manager to position the items
         LinearLayoutManager layoutManager = new LinearLayoutManager(this);
         rvTweets.setLayoutManager(layoutManager);
+        CustomDividerItemDecoration dividerItemDecoration = new CustomDividerItemDecoration(rvTweets.getContext());
+        rvTweets.addItemDecoration(dividerItemDecoration);
 
         scrollListener = new EndlessRecyclerViewScrollListener(layoutManager) {
             @Override

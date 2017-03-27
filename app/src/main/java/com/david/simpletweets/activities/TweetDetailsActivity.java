@@ -98,7 +98,7 @@ public class TweetDetailsActivity extends AppCompatActivity implements ComposeTw
                 RelativeLayout.LayoutParams params = (RelativeLayout.LayoutParams) ibReply.getLayoutParams();
                 params.addRule(RelativeLayout.BELOW, R.id.vvEmbedVideo);
                 //load video
-                Uri vidUri = Uri.parse(tweet.getMediaUrl());
+                Uri vidUri = Uri.parse(tweet.getVideoUrl());
                 vvEmbedVideo.setVideoURI(vidUri);
                 MediaController mediaController = new MediaController(TweetDetailsActivity.this);
                 mediaController.setAnchorView(vvEmbedVideo);

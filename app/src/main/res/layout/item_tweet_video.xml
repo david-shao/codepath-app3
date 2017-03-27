@@ -42,7 +42,7 @@
             android:layout_toEndOf="@+id/ivProfileImage"
             android:autoLink="all"
             android:textColor="@color/tweetBody"
-            android:layout_marginBottom="5dp"
+            android:layout_marginBottom="10dp"
             android:text="@{tweet.body}"/>
 
         <TextView
@@ -67,13 +67,35 @@
             android:textColor="@color/tweetMisc"
             android:text="@{tweet.relativeTimeAgo}"/>
 
+        <RelativeLayout android:descendantFocusability="blocksDescendants"
+            android:id="@+id/rlEmbed"
+            android:layout_below="@+id/tvBody"
+            android:layout_toEndOf="@+id/ivProfileImage"
+            android:layout_toRightOf="@+id/ivProfileImage"
+            android:layout_width="wrap_content" android:layout_height="wrap_content">
+
+            <ImageView
+                android:id="@+id/ivEmbedImage"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                tools:src="@mipmap/ic_launcher" />
+
+            <ImageView
+                android:id="@+id/ivPlay"
+                android:layout_width="50dp"
+                android:layout_height="50dp"
+                app:srcCompat="@drawable/video_play_icon"
+                android:layout_centerVertical="true"
+                android:layout_centerHorizontal="true" />
+        </RelativeLayout>
+
         <ImageButton
             android:id="@+id/ibReply"
             android:layout_width="25dp"
             android:layout_height="25dp"
-            android:layout_marginTop="5dp"
+            android:layout_marginTop="10dp"
             app:srcCompat="@drawable/ic_reply"
-            android:layout_below="@+id/tvBody"
+            android:layout_below="@+id/rlEmbed"
             android:layout_alignLeft="@+id/tvBody"
             android:layout_alignStart="@+id/tvBody"
             android:background="@android:color/transparent" />
